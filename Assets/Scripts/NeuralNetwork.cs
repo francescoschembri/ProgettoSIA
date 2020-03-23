@@ -105,13 +105,9 @@ public class NeuralNetwork
 
     public void Save(bool forceSave = false)
     {
-        //Debug.Log("Neural Network: Start Saving");
         if (fitness >= savedNet.fitness || forceSave)
         {
-            //Debug.Log("Neural Network: Start Call SaveNet.Save()");
             savedNet.Save(inputLayer.ColumnCount, numberOfOutputs, numberOfNeuronsPerHiddenLayer, weights, biases, fitness);
-            //Debug.Log("Neural Network: End Call SaveNet.Save()");
         }
-        //Debug.Log("Neural Network: End Saving");
     }
 }

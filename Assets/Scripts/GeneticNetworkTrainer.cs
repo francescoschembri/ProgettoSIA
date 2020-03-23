@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+using UnityEngine.UI;
+
 using System;
 using Random = UnityEngine.Random;
 
@@ -10,6 +12,8 @@ public class GeneticNetworkTrainer : MonoBehaviour
     [Header("Debug Info")]
     public int currentGeneration;
     public int currentGenome;
+    public Text currentGenerationLabel;
+    public Text currentGenomeLabel;
 
     [Header("Neural Network Parameters")]
     [SerializeField] int numberOfInputs;
@@ -23,7 +27,7 @@ public class GeneticNetworkTrainer : MonoBehaviour
     [Header("Population Info")]
     public int populationSize = 100;
     private NeuralNetwork[] population;
-    private int subjectsToResetAtEachGeneration = 10;
+    public int subjectsToResetAtEachGeneration = 10;
 
     [Header("Selection")]
     public int subpopulationSize = 30; //we use the tournament selection criterium with alfa = 30
@@ -43,12 +47,38 @@ public class GeneticNetworkTrainer : MonoBehaviour
 
     public void Start()
     {
-        currentGeneration = 0;
-        currentGenome = 0;
+        CurrentGeneration = 0;
+        CurrentGenome = 0;
         population = new NeuralNetwork[populationSize];
         numberOfInputs = car.directions.Length;
         numberOfOutputs = 2;
         RandomizePopulationFromIndex(0);
+    }
+
+    public int CurrentGeneration
+    {
+        get
+        {
+            return currentGeneration;
+        }
+        set
+        {
+            currentGeneration = value;
+            currentGenerationLabel.text = currentGeneration.ToString();
+        }
+    }
+
+    public int CurrentGenome
+    {
+        get
+        {
+            return currentGenome;
+        }
+        set
+        {
+            currentGenome = value;
+            currentGenomeLabel.text = currentGenome.ToString();
+        }
     }
 
     public void RandomizePopulationFromIndex(int index)
@@ -88,7 +118,6 @@ public class GeneticNetworkTrainer : MonoBehaviour
         {
             population[i] = parents[i];
             population[i].fitness = parents[i].fitness;
-            currentGenome = parents.Length;
         }
 
         for (; i < populationSize - subjectsToResetAtEachGeneration; i++)
@@ -164,14 +193,14 @@ public class GeneticNetworkTrainer : MonoBehaviour
 
     public void Death(float fitness)
     {
-        population[currentGenome].fitness = fitness;
-        currentGenome = (currentGenome + 1) % populationSize;
-        if (currentGenome == 0)
+        population[CurrentGenome].fitness = fitness;
+        CurrentGenome = (CurrentGenome + 1) % populationSize;
+        if (CurrentGenome == 0)
         {
-            currentGeneration++;
+            CurrentGeneration++;
             CrossoverAndMutation(Selection());
         }
-        car.Reset(population[currentGenome]);
+        car.Reset(population[CurrentGenome]);
     }
 
     public class FitnessComparer : IComparer

@@ -28,7 +28,6 @@ public class CarController : MonoBehaviour
     private GeneticNetworkTrainer evolutionManager;
 
     [Header("Fitness")]
-    public bool enableFitnessCap = false;
     [SerializeField] float overallFitness;
     [SerializeField] float maxOverallFitness = 2000f;
     [SerializeField] float minOverallFitness = 10f;
@@ -37,6 +36,7 @@ public class CarController : MonoBehaviour
     [SerializeField] float sensorMultiplier = 0.1f;
 
     private Vector3 lastPosition;
+    [SerializeField] private float minDistance = 10f;
     [SerializeField] private float totalDistanceTravelled;
     [SerializeField] private float avgSpeed;
 
@@ -160,17 +160,15 @@ public class CarController : MonoBehaviour
                         + avgSpeed * avgSpeedMultiplier //needed to make the net learn to go faster
                         + totalSensors / sensors.Length * sensorMultiplier; //needed to make the net learn to stay in the middle of the road 
 
-        if (timeSinceStart > minTimeBeforeResetAlive && overallFitness < minOverallFitness)
+        if (timeSinceStart > minTimeBeforeResetAlive && (overallFitness < minOverallFitness || Vector3.Distance(transform.position, startPosition) < minDistance))
         {
             Reset(overallFitness);
         }
 
-        if (overallFitness >= maxOverallFitness && enableFitnessCap)
+        if (overallFitness >= maxOverallFitness && trainNetwork)
         {
-            //Debug.Log("CarController: Start Saving");
             network.fitness = overallFitness;
             network.Save();
-            //Debug.Log("CarController: End Saving");
             Reset(overallFitness);
         }
     }
