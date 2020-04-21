@@ -181,14 +181,14 @@ public class GeneticNetworkTrainer : MonoBehaviour
 
             population[i] = child1;
             i++;
-            if (i < populationSize - 1 - subjectsToResetAtEachGeneration) //needed if we have an odd number of subjects in the population
+            if (i < populationSize - subjectsToResetAtEachGeneration) //needed if we have an odd number of subjects in the population
             {
                 population[i] = child2;
             }
         }
 
         RandomizePopulationFromIndex(populationSize - 1 - subjectsToResetAtEachGeneration);
-
+        currentGenome = numParents;
     }
 
     public void Death(float fitness)

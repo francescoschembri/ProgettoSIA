@@ -95,10 +95,35 @@ PrefabInstance:
       propertyPath: m_Name
       value: Car
       objectReference: {fileID: 0}
+    - target: {fileID: 5686601915802152338, guid: 26eaa6b45cc644447952dd8812a5773a,
+        type: 3}
+      propertyPath: m_Size.x
+      value: 0.14244461
+      objectReference: {fileID: 0}
+    - target: {fileID: 5686601915802152338, guid: 26eaa6b45cc644447952dd8812a5773a,
+        type: 3}
+      propertyPath: m_Size.z
+      value: 0.24780552
+      objectReference: {fileID: 0}
+    - target: {fileID: 5686601915802152338, guid: 26eaa6b45cc644447952dd8812a5773a,
+        type: 3}
+      propertyPath: m_Center.x
+      value: -0.00087833405
+      objectReference: {fileID: 0}
+    - target: {fileID: 5686601915802152338, guid: 26eaa6b45cc644447952dd8812a5773a,
+        type: 3}
+      propertyPath: m_Center.y
+      value: 0.008437514
+      objectReference: {fileID: 0}
+    - target: {fileID: 5686601915802152338, guid: 26eaa6b45cc644447952dd8812a5773a,
+        type: 3}
+      propertyPath: m_Center.z
+      value: -0.0025039539
+      objectReference: {fileID: 0}
     - target: {fileID: 5067484151594533150, guid: 26eaa6b45cc644447952dd8812a5773a,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -7.8
+      value: 3.3
       objectReference: {fileID: 0}
     - target: {fileID: 5067484151594533150, guid: 26eaa6b45cc644447952dd8812a5773a,
         type: 3}
@@ -108,27 +133,27 @@ PrefabInstance:
     - target: {fileID: 5067484151594533150, guid: 26eaa6b45cc644447952dd8812a5773a,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.9
+      value: 5.8
       objectReference: {fileID: 0}
     - target: {fileID: 5067484151594533150, guid: 26eaa6b45cc644447952dd8812a5773a,
         type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 5067484151594533150, guid: 26eaa6b45cc644447952dd8812a5773a,
         type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: 0.7279198
       objectReference: {fileID: 0}
     - target: {fileID: 5067484151594533150, guid: 26eaa6b45cc644447952dd8812a5773a,
         type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 5067484151594533150, guid: 26eaa6b45cc644447952dd8812a5773a,
         type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: 0.68566227
       objectReference: {fileID: 0}
     - target: {fileID: 5067484151594533150, guid: 26eaa6b45cc644447952dd8812a5773a,
         type: 3}
@@ -143,7 +168,7 @@ PrefabInstance:
     - target: {fileID: 5067484151594533150, guid: 26eaa6b45cc644447952dd8812a5773a,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
+      value: 93.425
       objectReference: {fileID: 0}
     - target: {fileID: 5067484151594533150, guid: 26eaa6b45cc644447952dd8812a5773a,
         type: 3}
@@ -151,16 +176,16 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1389419762, guid: 26eaa6b45cc644447952dd8812a5773a, type: 3}
-      propertyPath: accelerationPercentage
-      value: 0.12
+      propertyPath: turningAngle
+      value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 1389419762, guid: 26eaa6b45cc644447952dd8812a5773a, type: 3}
-      propertyPath: turningPercentage
-      value: 0.08
+      propertyPath: maxDisplacement
+      value: 0.15
       objectReference: {fileID: 0}
     - target: {fileID: 1389419762, guid: 26eaa6b45cc644447952dd8812a5773a, type: 3}
       propertyPath: minTimeBeforeResetAlive
-      value: 5
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 1389419762, guid: 26eaa6b45cc644447952dd8812a5773a, type: 3}
       propertyPath: trainNetwork

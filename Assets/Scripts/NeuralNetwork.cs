@@ -22,8 +22,8 @@ public class NeuralNetwork
         this.savedNet = savedNet;
     }
 
-    public void Initialise(int numberOfInputs, int numberOfOutputs, int numberOfHiddenLayers,
-                            int numberOfNeuronsPerHiddenLayer, List<MatrixWrapper> w = null, List<float> b = null, float fitness = 0f)
+    public void Initialise(int numberOfInputs, int numberOfOutputs, int numberOfHiddenLayers = 0,
+                            int numberOfNeuronsPerHiddenLayer = 0, List<MatrixWrapper> w = null, List<float> b = null, float fitness = 0f)
     {
         inputLayer = new MatrixWrapper(1, numberOfInputs);
         this.fitness = fitness;
@@ -55,7 +55,7 @@ public class NeuralNetwork
                 prevNumberOfNeurons = numberOfNeuronsPerHiddenLayer;
             }
 
-            weights.Add(new MatrixWrapper(numberOfNeuronsPerHiddenLayer, numberOfOutputs));
+            weights.Add(new MatrixWrapper(prevNumberOfNeurons, numberOfOutputs));
 
             RandomiseWeights();
         }

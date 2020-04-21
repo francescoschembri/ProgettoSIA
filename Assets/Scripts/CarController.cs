@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class CarController : MonoBehaviour
 {
@@ -8,39 +6,38 @@ public class CarController : MonoBehaviour
 
     [Header("Movement")]
     [Range(0f, 1f)]
-    public float acceleration;
+    public float displacementPercentage;
     [Range(-1f, 1f)]
-    public float turning;
-    public float turningAngle = 90;
-    public float accelerationSpeed = 0.05f;
-    public float accelerationPercentage = 0.02f;
-    public float turningPercentage = 0.1f;
+    public float turningPercentage;
+    public float turningAngle = 9;
+    public float maxDisplacement = 0.15f;
 
     [SerializeField] float timeSinceStart = 0f;
-    [SerializeField] float minTimeBeforeResetAlive = 20;
+    [SerializeField] float minTimeBeforeResetAlive = 10;
 
     [Header("Neural Network Options")]
     public bool controlledByNeuralNetwork = true;
     public bool trainNetwork = true;
     public SaveNet networkSaved;
-    //ONLY FOR TRAINING PURPOSE WE WANT TO LOAD THE NETWORK NOT TRAIN IT.
     private NeuralNetwork network;
     private GeneticNetworkTrainer evolutionManager;
 
     [Header("Fitness")]
     [SerializeField] float overallFitness;
     [SerializeField] float maxOverallFitness = 2000f;
-    [SerializeField] float minOverallFitness = 10f;
+    [SerializeField] float minOverallFitness = 25f;
+
+    [Header("Fitness Multiplier")]
     [SerializeField] float distanceMultipler = 10f;
-    [SerializeField] float avgSpeedMultiplier = 0.2f;
-    [SerializeField] float sensorMultiplier = 0.1f;
+    [SerializeField] float avgSpeedMultiplier = 0.3f;
 
+    [Header("Other variables")]
     private Vector3 lastPosition;
-    [SerializeField] private float minDistance = 10f;
+    [SerializeField] private float minDistance = 2f;
+    [SerializeField] private float maxStopTime = 1f;
+    [SerializeField] private float stopTime = 0f;
     [SerializeField] private float totalDistanceTravelled;
-    [SerializeField] private float avgSpeed;
-
-    private Vector3 input;
+    [SerializeField] private bool safe;
 
     [Header("Sensors")]
     public float sensorAttenuation = 10f;
@@ -61,9 +58,7 @@ public class CarController : MonoBehaviour
         }
         else
         {
-            //Debug.Log("Car Controller Network: Start Loading");
             network = networkSaved.ToNetwork();
-            //Debug.Log("Car Controller Network: End Loading");
         }
     
     }
@@ -76,9 +71,12 @@ public class CarController : MonoBehaviour
 
     public void Reset()
     {
-        timeSinceStart = 0f;
+        safe = false;
+        timeSinceStart = 0;
+        displacementPercentage = 0f;
+        turningPercentage = 0f;
         totalDistanceTravelled = 0f;
-        avgSpeed = 0f;
+        stopTime = 0f;
         lastPosition = startPosition;
         overallFitness = 0f;
         transform.position = startPosition;
@@ -102,41 +100,50 @@ public class CarController : MonoBehaviour
         Reset(overallFitness);
     }
 
-    private void FixedUpdate()
+    private void Update()
     {
-
-        lastPosition = transform.position;
-
-        if (controlledByNeuralNetwork)
+        if (lastPosition == transform.position)
         {
-            InputSensors();
-            (acceleration, turning) = network.RunNetwork(sensors);
+            stopTime += Time.deltaTime;
         }
-        //else move with a controller
+        else
+        {
+            stopTime = 0f;
+        }
 
-        MoveCar(acceleration, turning);
+        if (stopTime > maxStopTime)
+        {
+            Reset(1);
+        }
+        else
+        {
+            timeSinceStart += Time.deltaTime;
+            lastPosition = transform.position;
 
-        timeSinceStart += Time.deltaTime;
+            if (controlledByNeuralNetwork)
+            {
+                InputSensors();
+                (displacementPercentage, turningPercentage) = network.RunNetwork(sensors);
+            }
+            //else move with a controller
+            MoveCar(displacementPercentage, turningPercentage);
 
-        CalculateFitness();
 
+            if (trainNetwork)
+            {
+                CalculateFitness();
+            }
+        }
     }
-
 
     private void InputSensors()
     {
-        Vector3[] localDirections = new Vector3[directions.Length];
-        for(int i = 0; i < directions.Length; i++)
-        {
-            localDirections[i] = transform.TransformDirection(directions[i]);
-        }
-
-        Ray r = new Ray(transform.position, localDirections[0]);
+        Ray r = new Ray(transform.position, transform.TransformDirection(directions[0]));
         RaycastHit hit;
 
-        for (int i = 0;i<localDirections.Length; i++)
+        for (int i = 0; i<directions.Length; i++)
         {
-            r.direction = localDirections[i];
+            r.direction = transform.TransformDirection(directions[i]);
             if (Physics.Raycast(r, out hit))
             {
                 sensors[i] = hit.distance / sensorAttenuation;
@@ -148,44 +155,32 @@ public class CarController : MonoBehaviour
     private void CalculateFitness()
     {
         totalDistanceTravelled += Vector3.Distance(transform.position, lastPosition);
-        avgSpeed = totalDistanceTravelled / timeSinceStart;
-
-        float totalSensors = 0;
-        foreach(float s in sensors)
-        {
-            totalSensors += s;
-        }
+        float avgSpeed = totalDistanceTravelled / timeSinceStart;
 
         overallFitness = totalDistanceTravelled * distanceMultipler //needed to make the net learn to drive properly
-                        + avgSpeed * avgSpeedMultiplier //needed to make the net learn to go faster
-                        + totalSensors / sensors.Length * sensorMultiplier; //needed to make the net learn to stay in the middle of the road 
+                        + avgSpeed * avgSpeedMultiplier; //needed to make the net learn to go faster
 
-        if (timeSinceStart > minTimeBeforeResetAlive && (overallFitness < minOverallFitness || Vector3.Distance(transform.position, startPosition) < minDistance))
+        if (timeSinceStart > minTimeBeforeResetAlive && (overallFitness < minOverallFitness || (!safe && Vector3.Distance(transform.position, startPosition) < minDistance)))
         {
-            Reset(overallFitness);
+            Debug.Log("BadNet");
+            Reset(1);
         }
-
-        if (overallFitness >= maxOverallFitness && trainNetwork)
+        if (timeSinceStart > minTimeBeforeResetAlive)
         {
+            safe = true;
+        }
+        if (overallFitness >= maxOverallFitness)
+        {
+            Debug.Log("TopNet");
             network.fitness = overallFitness;
             network.Save();
             Reset(overallFitness);
         }
     }
 
-
     public void MoveCar(float acceleration, float turning)
     {
-        input = Vector3.Lerp(Vector3.zero, new Vector3(0, 0, acceleration * accelerationSpeed), accelerationPercentage);
-        input = transform.TransformDirection(input);
-        Vector3 tmp = input + transform.position;
-
-        transform.position += input;
-        transform.eulerAngles += new Vector3(0, (turning * turningAngle) * turningPercentage, 0);
-    }
-
-    public void ModifyNetwork(NeuralNetwork newNetwork)
-    {
-        network = newNetwork;
+        transform.position += transform.TransformDirection(new Vector3(0, 0, acceleration * maxDisplacement));
+        transform.eulerAngles += new Vector3(0, turning * turningAngle, 0);
     }
 }
